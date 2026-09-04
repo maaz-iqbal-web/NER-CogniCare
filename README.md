@@ -1,82 +1,167 @@
-# NER CogniCare v4
+# NER CogniCare
 
-AI-powered cognitive gaming and memory assistance prototype for elderly dementia care in the North Eastern Region (NER).
+**AI-assisted cognitive gaming and memory support for elderly dementia care in the North Eastern Region (NER).**
 
-## Run on port 5050
+NER CogniCare is a web-based platform designed to make cognitive activities, memory assistance, daily reminders and caregiver support easier to access for elderly users.
 
-```powershell
-python -m venv .venv
-.venv\Scripts\activate
-pip install -r requirements.txt
-python app.py
-```
+The system focuses on one simple idea:
 
-Open: http://127.0.0.1:5050
+> **The system adapts to the person — the person doesn't have to adapt to the system.**
 
-## Real AI
+## What CogniCare Does
 
-The app is local, but that does **not** prevent AI. Your browser talks to the Flask backend locally; the backend can then call an external AI provider. For real conversational AI, copy `.env.example` to `.env` and set `OPENAI_API_KEY`.
+CogniCare combines cognitive activities with a personal context layer so that the experience can change according to the user's previous activity and preferences.
 
-Example:
+The platform includes:
 
-```powershell
-copy .env.example .env
-```
+- Cognitive games for memory, attention, sequencing and recognition
+- Difficulty adjustment based on the user's own recent performance
+- Personalized activity recommendations
+- Memory and routine assistance
+- Daily reminders for medication, hydration, appointments and tasks
+- AI Memory Companion for conversational assistance
+- Caregiver dashboard with performance trends and observations
+- Multilingual interface support
+- Voice input and optional spoken responses
+- Offline-first support for low-connectivity environments
+- Patient profiles with personal preferences and caregiver-provided information
 
-Then edit `.env` and add your key. Restart Flask after changing it.
+## Cognitive Activities
 
-If no key is present, the app still works with a privacy-friendly local rule-based assistant, clearly labelled as Local Assistant. Games, memories, reminders and analytics do not require internet.
+The current version includes 10 activities covering different cognitive skills:
 
-## v4 highlights
+- Memory Match
+- Pattern Recall
+- Attention & Focus
+- Daily Routine Recall
+- Find the Change
+- Grocery Basket
+- Where Does It Belong?
+- Who Is Missing?
+- What Happened First?
+- Odd One Out
 
-- Port 5050
-- Lighter lavender/purple visual system
-- Larger primary navigation cards
-- Single consistent AI button + full AI companion modal
-- Real OpenAI Responses API integration when configured, with local fallback
-- Patient-aware AI context with grounded-memory rules
-- Voice input using the browser and optional spoken replies
-- 10 fully playable cognitive activities
-- Detailed game telemetry: accuracy, attempts, wrong selections, response time, hints, difficulty and errors
-- AI-driven activity recommendation and explainable caregiver observations
-- Today vs usual + 7/30/90-day trends
-- Synthetic starter profiles plus fresh patient creation
-- NER language-first onboarding
-- Dementia-friendly navigation and calm motion
-- No diagnostic claims; caregiver analytics compare a person with their own history
+Each completed activity records useful session information such as accuracy, score, response time, attempts, hints and errors.
 
+## Adaptive Difficulty
 
-## Run
-1. Create and activate `.venv`: `python -m venv .venv` then `.venv\Scripts\activate` on Windows.
-2. Install: `python -m pip install -r requirements.txt`.
-3. Copy `.env.example` to `.env` and add your API key if you want cloud AI.
-4. Start: `python app.py`.
-5. Open `http://127.0.0.1:5050`.
+Difficulty is not based on a fixed level for everyone.
 
-The app also has a local assistant fallback, so the AI button remains usable when the API is unavailable.
+CogniCare keeps a separate performance history for each person and activity. Recent results are used to adjust the next round between five difficulty levels.
 
-## v4.3 upgrade — real working features added
+For example, stronger recent performance can lead to a slightly more challenging round, while weaker performance can reduce the difficulty.
 
-The v4 build looked complete on the surface but several pitched features either had no UI or were broken. This upgrade makes them actually work:
+The system also considers:
 
-- **Reminders were fully wired up.** The backend already had a complete reminders API, but no page ever displayed it. Patients now see a "Reminders" panel on their profile page with add / mark-done / remove, backed by the existing database.
-- **Fixed "What Happened First?"** — it was silently rendered as an exact duplicate of "Daily Routine Recall". It's now a distinct memory-recall game: the sequence is shown briefly, then hidden, and the person reconstructs it from memory.
-- **Fixed "Odd One Out"** — the correct answer was hardcoded to one emoji regardless of which item set was shuffled in, so it could be unsolvable. It now tracks the actual odd item across several randomized sets.
-- **Real multi-language UI**, not just a language picker. English, Hindi, Assamese and Bengali now have full interface translations (headers, buttons, labels) that render based on each patient's chosen language; other languages fall back cleanly to English rather than showing blanks.
-- **Offline-first, for real.** A service worker caches the app shell so it still loads with no connection, and game results / reminder actions made while offline are queued in the browser and synced automatically once the connection returns — with a status banner so the caregiver/patient can see it happening.
-- **Caregiver dashboard access control.** Trends, session history, and caregiver notes previously had zero access control despite being pitched as "role-based access." The caregiver dashboard now sits behind a PIN gate (`CAREGIVER_PIN` in `.env`, default `1234` for the demo — change it for any real deployment), enforced server-side on the API, not just hidden in the UI.
-- Added a print button on the caregiver dashboard for a quick paper/PDF report via the browser's print dialog.
+- Recent accuracy
+- Time since the activity was last played
+- Repeated error patterns
+- The type of cognitive activity involved
+- The activity played most recently
 
-Nothing that already worked (the AI companion, adaptive difficulty, memories, analytics) was changed in this pass — only what was missing, silently broken, or unimplemented.
+The goal is to keep activities challenging without making them unnecessarily difficult.
 
-## v4.4 upgrade — the AI is now actually adaptive
+## AI Memory Companion
 
-Before this pass, "adaptive difficulty" was a headline claim only: a difficulty number was stored with every session but never read back or used for anything, and the caregiver's "AI observations" were a single overall recent-vs-older accuracy comparison with no connection to which specific game or skill was involved.
+The AI Companion provides a conversational interface for the user.
 
-- **Difficulty now genuinely changes the games.** Each game/patient pair has its own rolling difficulty (1–5), computed from that person's own last few rounds of *that specific game* (not a population norm). It's fetched live before every round and actually reshapes what's presented: more pairs in Memory Match, longer sequences in Pattern Recall, more/faster targets in Attention & Focus, a bigger shopping list in Grocery Basket, a shorter memorization window in What Happened First. The reasoning ("recent accuracy is strong, so this round adds a little more challenge") is shown right in the game so it's not a black box.
-- **Recommendations are multi-factor, not just "pick the worst score."** The engine now weighs current weakness, how long it's been since a game was last played (spaced repetition), which specific error type has been rising in that game (sequencing, focus, or spatial/positional), and avoids immediately repeating the last game played. The reason shown is grounded in real numbers pulled from that factor, not a template.
-- **Caregiver observations are per-game and error-specific**, not just one global trend. Where a specific game has enough of its own history, the AI names the specific skill involved (e.g. "more moments related to staying focused when something else is happening") instead of a generic "small change noticed" — while still explicitly avoiding diagnostic language.
-- **Added a real engagement streak** (consecutive days played), surfaced on the patient's home page and woven into the AI companion's replies.
-- **The AI companion is now genuinely personalized, with or without an API key.** Instead of dumping raw JSON into the prompt, it builds a curated briefing (streak, live recommendation + reasoning, top observations, reminders, memories) that both the cloud model and the offline local-fallback assistant use — so even without an OpenAI key configured, asking "how am I doing" or "let's play" gets an answer grounded in that person's actual recent numbers, not a canned line.
+It can use the information available in the user's profile and recent activity context to help with things such as:
 
+- Personal memories
+- Daily routines
+- Reminders
+- Recent activity and progress
+- Suggested activities
+- General navigation and assistance
 
+When an OpenAI API key is configured, the application can use the OpenAI Responses API for conversational responses.
+
+If the API is unavailable, CogniCare can fall back to a local rule-based assistant so that the core application remains usable.
+
+The AI is designed to work only with trusted information available to the application and does not diagnose dementia or make medical diagnoses.
+
+## Caregiver Dashboard
+
+The caregiver dashboard provides a view of the user's activity history and progress.
+
+It includes:
+
+- Session history
+- Game-by-game performance
+- Accuracy and response trends
+- 7, 30 and 90-day views
+- Recent activity
+- Error patterns
+- AI-assisted observations
+- Caregiver notes
+- Reminders
+- Engagement streaks
+- Printable caregiver reports
+
+The dashboard is protected by a server-side caregiver PIN.
+
+## Language & Voice
+
+CogniCare currently supports interface translations for:
+
+- English
+- Hindi
+- Assamese
+- Bengali
+
+The interface is designed around language-first onboarding, with voice input available through the browser's speech recognition capabilities.
+
+Spoken responses can also be enabled where supported by the browser.
+
+## Offline Support
+
+The application is designed with low-connectivity environments in mind.
+
+The frontend uses a service worker to cache the application shell. Selected actions performed while offline can be queued locally and synchronized when connectivity returns.
+
+This allows cognitive activities and basic application functionality to remain useful even when a reliable internet connection is unavailable.
+
+## Technology Stack
+
+| Area | Technology |
+|------|------------|
+| Backend | Python, Flask |
+| Database | SQLite |
+| Frontend | HTML, CSS, JavaScript |
+| AI | OpenAI Responses API + local fallback |
+| Voice | Browser Speech Recognition / Speech Synthesis |
+| Offline Support | Service Worker + local browser storage |
+| Authentication | Server-side caregiver PIN |
+| Environment | Python virtual environment |
+
+## Project Structure
+
+```text
+NER-CogniCare/
+│
+├── app.py
+├── requirements.txt
+├── README.md
+├── .env.example
+├── .gitignore
+├── start.bat
+│
+├── core/
+│   ├── __init__.py
+│   ├── adaptive_ai.py
+│   ├── ai_service.py
+│   ├── database.py
+│   └── translations.py
+│
+├── static/
+│   ├── app.js
+│   ├── style.css
+│   └── sw.js
+│
+└── templates/
+    ├── base.html
+    ├── index.html
+    ├── caregiver.html
+    ├── games.html
+    ├── memory.html
+    └── patient.html
