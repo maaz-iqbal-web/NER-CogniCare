@@ -1,0 +1,12 @@
+{% extends "base.html" %}{% block title %}Caregiver · {{patient.name}}{% endblock %}{% block content %}
+<div id="caregiverGate" class="caregiver-gate"><div class="gate-card"><div class="gate-icon">🔒</div><h2>{{ui.caregiver_locked_title}}</h2><p>{{ui.caregiver_locked_sub}}</p><form id="caregiverPinForm" class="gate-form"><input id="caregiverPinInput" type="password" inputmode="numeric" placeholder="{{ui.enter_pin}}" autocomplete="off" required><button class="primary">{{ui.unlock}}</button></form><p id="caregiverPinError" class="gate-error hidden">{{ui.wrong_pin}}</p></div></div>
+<div id="caregiverContent" class="hidden">
+<div class="page caregiver-page-head"><div><span>{{ui.caregiver_intel}}</span><h1>{{patient.name}}</h1><p>{{ui.caregiver_sub}}</p></div><button class="ghost-btn" id="printReport">{{ui.print_report}}</button></div>
+<div id="metrics" class="metrics"></div>
+<section class="panel"><div class="section-head"><div><h2>{{ui.ai_observations}}</h2><p>{{ui.ai_observations_sub}}</p></div><span id="aiStatus">Loading…</span></div><div id="observations"></div></section>
+<section class="panel"><div class="section-head"><h2>{{ui.today_vs_usual}}</h2><span class="muted">{{ui.personal_baseline}}</span></div><div id="todayUsual" class="compare-grid"></div></section>
+<section class="panel"><div class="section-head"><h2>{{ui.trend_window}}</h2><select id="trendDays"><option value="7">7 days</option><option value="30" selected>30 days</option><option value="90">90 days</option></select></div><div id="trendChart" class="trend-chart"></div></section>
+<section class="panel"><h2>{{ui.game_analysis}}</h2><div id="gameTable"></div></section>
+<section class="panel"><h2>{{ui.session_history}}</h2><div id="sessionTable"></div></section>
+<section class="panel"><h2>{{ui.caregiver_notes}}</h2><div id="notesList"></div><form id="noteForm" class="note-form"><input name="note" placeholder="{{ui.add_observation}}" required><button class="primary">{{ui.save}}</button></form></section>
+</div>{% endblock %}
