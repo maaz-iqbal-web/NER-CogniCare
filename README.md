@@ -165,3 +165,8 @@ NER-CogniCare/
     ├── games.html
     ├── memory.html
     └── patient.html
+## 📑 SIH Project Presentation
+
+View our NER-CogniCare presentation for Smart India Hackathon 2026.
+
+[📄 View SIH Presentation (PDF)](Smart%20India%20Hackathon%20Title%20Page.pdf)
